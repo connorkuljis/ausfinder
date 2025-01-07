@@ -11,3 +11,8 @@ type Business struct {
 	StateOfReg   string `db:"BN_STATE_OF_REG"`
 	ABN          string `db:"BN_ABN"`
 }
+
+type BusinessSearch struct {
+	Name string `db:"business_name"`
+	ABN  string `db:"abn"`
+}
