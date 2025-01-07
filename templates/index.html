@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Search for Australian Businesses</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script
+      src="https://unpkg.com/htmx.org@2.0.4"
+      integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <h1>Search for Australian Businesses</h1>
+    <label for="search">Search</label>
+    <input
+      class="form-control"
+      id="search"
+      name="search"
+      type="search"
+      hx-post="/search"
+      hx-target="#search-result"
+      hx-trigger="input changed delay:200ms, keyup[key=='Enter'], load"
+    />
+    <ul id="search-result"></ul>
+  </body>
+</html>
+
+{{ define "search-result" }}
+<!-- nowrap -->
+{{ range . }}
+<li>{{ .ABN }} - {{ .Name }}</li>
+{{ end }}
+<!-- nowrap -->
+{{ end }}
