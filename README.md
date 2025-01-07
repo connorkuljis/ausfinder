@@ -14,7 +14,7 @@ Create a SQLite database and start the command line shell.
   
 ## Import the CSV file into a new table.
 
-Now that we are in the shell, to import the dataset first we need to enable tab mode. Then we can create the table using the `.import` command. It will take a while to import the file so wait a little and verify the table creation by viewing the schema.
+Now that we are in the shell, first we need to enable tab mode. Then we can create the table using the `.import` command. It will take a while to import the file, so wait a little while and then verify the table creation by viewing the schema.
 
 * Note: omit semi-colons on sqlite commands.
 
@@ -22,7 +22,6 @@ Now that we are in the shell, to import the dataset first we need to enable tab 
 .mode tabs
 .import data/BUSINESS_NAMES_202501.csv business_names
 ```
-
 
 ## Verfify table creation and population
 
