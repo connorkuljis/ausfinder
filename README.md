@@ -23,12 +23,14 @@ Now that we are in the shell, to import the dataset first we need to enable tab 
 .import data/BUSINESS_NAMES_202501.csv business_names
 ```
 
-View the schema
+
+## Verfify table creation and population
+
+Verify the table creation by viewing the created schema.
 
 `.schema business_names`
 
-
-## Verfify table creation and population
+Check results
 
 ```sql
 select count(*) from business_names;
