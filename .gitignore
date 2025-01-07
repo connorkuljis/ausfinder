@@ -1,1 +1,8 @@
 main
+data/
+
+!cmd/
+!Justfile
+!data/README.md
+!internal/
+
