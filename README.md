@@ -35,6 +35,28 @@ Check results
 select count(*) from business_names;
 ```
 
+## Add Full Text Search
+
+[SQLite FTS5 Extension ](https://www.sqlite.org/fts5.html)
+
+Create virtual table with fts5.
+
+```sql
+CREATE VIRTUAL TABLE businesses USING fts5(business_name, abn);
+```
+
+Populate the virtual table using insert select.
+
+```sql
+INSERT INTO
+     businesses
+     SELECT
+          trim(BN_NAME), trim(BN_ABN)
+     FROM
+          business_names;
+```
+
+
 ## Notes
 
 ### Line Mode
@@ -87,20 +109,28 @@ From this example there are a few oddites:
 
 ## Example Queries
 
+Query `business_names` table
+
 ```sql
 select count(*) from business_names;
 ```
-
----
 
 ```sql
 select distinct BN_STATUS from business_names;
 ```
 
----
+```sql
+select distinct BN_STATE_OF_REG from business_names;
+```
 
 ```sql
 select trim(BN_NAME) as 'Business', BN_ABN as 'ABN' from business_names limit 10;
 ```
 
 ---
+
+Query `business` virtual table with full text search.
+
+```sql
+select * from businesses WHERE business_name MATCH 'software';
+```
