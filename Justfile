@@ -1,2 +1,2 @@
 build:
-    go build -v ./cmd/server/main.go
+    go build -v --tags "fts5" ./cmd/server/main.go

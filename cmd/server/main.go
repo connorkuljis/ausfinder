@@ -2,44 +2,89 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
+	"net/http"
+	"text/template"
 
+	"github.com/connorkuljis/backtrace/internal/model"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	_ "github.com/mattn/go-sqlite3"
 
-	"github.com/connorkuljis/backtrace/internal/abr"
-	"github.com/connorkuljis/backtrace/internal/model"
 	"github.com/jmoiron/sqlx"
 )
 
 const (
-	dbstr     = "file:data/db.sqlite3"
-	randomABN = "88573118334"
+	dbstr        = "file:data/db.sqlite3"
+	randomABN    = "88573118334"
+	dbContextKey = "_db"
 )
 
-func main() {
-	err := sqliteDemo()
-	if err != nil {
-		log.Fatal(fmt.Errorf("Error: %w", err))
-	}
+var funcMap = template.FuncMap{}
 
-	fmt.Println("ok")
+type Template struct {
+	templates *template.Template
 }
 
-func sqliteDemo() error {
+func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	return t.templates.ExecuteTemplate(w, name, data)
+}
+
+// returns a new template set.
+func templates() *template.Template {
+	return template.Must(template.New("").Funcs(funcMap).Option("missingkey=error").ParseGlob("templates/*.html"))
+}
+
+func dbMiddleware(db *sqlx.DB) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			c.Set(dbContextKey, db)
+			return next(c)
+		}
+	}
+}
+
+func main() {
+	e := echo.New()
+
+	// html template renderer
+	t := &Template{
+		templates: templates(),
+	}
+	e.Renderer = t
+
+	// db connection middleware
 	db, err := connect()
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
+	e.Use(dbMiddleware(db))
+	e.Use(middleware.Logger())
 
-	var business model.Business
-	err = db.Get(&business, `SELECT * FROM business_names WHERE trim(BN_ABN) = ?`, randomABN)
-	if err != nil {
-		return err
-	}
+	// e.Static("/", "public")
 
-	log.Println(business)
+	e.GET("/", func(c echo.Context) error {
+		return c.Render(http.StatusOK, "index.html", nil)
+	})
 
-	return nil
+	e.POST("/search", func(c echo.Context) error {
+		var businesses []model.BusinessSearch
+
+		db := c.Get(dbContextKey).(*sqlx.DB)
+
+		searchStr := c.FormValue("search")
+
+		if searchStr != "" {
+			err = db.Select(&businesses, `SELECT * FROM businesses WHERE business_name MATCH ?`, searchStr)
+			if err != nil {
+				return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+			}
+		}
+
+		return c.Render(http.StatusOK, "search-result", businesses)
+	})
+	e.Start(":8080")
 }
 
 func connect() (*sqlx.DB, error) {
@@ -51,15 +96,4 @@ func connect() (*sqlx.DB, error) {
 	fmt.Println("connected to ", dbstr)
 
 	return db, nil
-}
-
-func abrSearchExample() {
-	client := abr.ABRXMLSearchClient{}
-
-	res, err := client.SearchByABN(randomABN)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println(res)
 }
