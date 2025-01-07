@@ -10,7 +10,7 @@
 
 Create a SQLite database and start the command line shell.
 
-`sqlite3 db.sqlite3`
+`sqlite3 data/db.sqlite3`
   
 ## Import the CSV file into a new table.
 
@@ -20,7 +20,7 @@ Now that we are in the shell, to import the dataset first we need to enable tab 
 
 ```
 .mode tabs
-.import {{ filename }} business_names
+.import data/BUSINESS_NAMES_202501.csv business_names
 ```
 
 View the schema
@@ -28,17 +28,20 @@ View the schema
 `.schema business_names`
 
 
-Verfify table entries using count
+## Verfify table creation and population
 
-`select count(*) from business_names;`
+```sql
+select count(*) from business_names;
+```
 
 ## Notes
 
 ### Line Mode
 
-```
-.mode line
-select trim(BN_NAME) AS 'Business', BN_ABN as ABN from business LIMIT 10;`
+`.mode line`
+
+```sql
+select trim(BN_NAME) as 'Business', BN_ABN as 'ABN' from business_names limit 10;
 ```
 
 Outputs
@@ -80,8 +83,23 @@ From this example there are a few oddites:
 
 * use `trim()` to strip leading and trailing whitespace. This is especially useful for Business Names.
 
+
+## Example Queries
+
+```sql
+select count(*) from business_names;
 ```
-sqlite> select distinct BN_STATUS from business;
-Registered
-Deregistered
+
+---
+
+```sql
+select distinct BN_STATUS from business_names;
 ```
+
+---
+
+```sql
+select trim(BN_NAME) as 'Business', BN_ABN as 'ABN' from business_names limit 10;
+```
+
+---
