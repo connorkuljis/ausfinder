@@ -61,29 +61,41 @@ func main() {
 	}
 	e.Use(dbMiddleware(db))
 	e.Use(middleware.Logger())
-
 	// e.Static("/", "public")
 
+	// Using Get
+	var count int
+	err = db.Get(&count, "SELECT COUNT(*) FROM business_names")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	e.GET("/", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "index.html", nil)
+		return c.Render(http.StatusOK, "index.html", map[string]interface{}{
+			"Count": count,
+		})
 	})
 
-	e.POST("/search", func(c echo.Context) error {
-		var businesses []model.BusinessSearch
-
+	e.GET("/search", func(c echo.Context) error {
 		db := c.Get(dbContextKey).(*sqlx.DB)
 
-		searchStr := c.FormValue("search")
+		queryStr := c.QueryParam("query")
 
-		if searchStr != "" {
-			err = db.Select(&businesses, `SELECT * FROM businesses WHERE business_name MATCH ?`, searchStr)
+		var results []model.BusinessSearch
+		if queryStr != "" {
+			err = db.Select(&results, `SELECT * FROM businesses WHERE business_name MATCH ? ORDER BY abn DESC`, queryStr)
 			if err != nil {
 				return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 			}
 		}
 
-		return c.Render(http.StatusOK, "search-result", businesses)
+		return c.Render(http.StatusOK, "search-results", map[string]interface{}{
+			"QueryStr": queryStr,
+			"Count":    len(results),
+			"Results":  results,
+		})
 	})
+
 	e.Start(":8080")
 }
 

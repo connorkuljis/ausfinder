@@ -1,35 +1,73 @@
 <!doctype html>
 <html lang="en">
+  <!-- head -->
   <head>
-    <title>Search for Australian Businesses</title>
+    <title>Search for Businesses</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script
-      src="https://unpkg.com/htmx.org@2.0.4"
-      integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+"
-      crossorigin="anonymous"
+      defer
+      src="https://cdn.jsdelivr.net/npm/@imacrayon/alpine-ajax@0.11.0/dist/cdn.min.js"
+    ></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"
     ></script>
   </head>
+  <!-- ./head -->
+
   <body>
-    <h1>Search for Australian Businesses</h1>
-    <label for="search">Search</label>
-    <input
-      class="form-control"
-      id="search"
-      name="search"
-      type="search"
-      hx-post="/search"
-      hx-target="#search-result"
-      hx-trigger="input changed delay:200ms, keyup[key=='Enter'], load"
-    />
-    <ul id="search-result"></ul>
+    {{ template "styles" . }}
+    <h1>Search Australin Businesses</h1>
+    <!-- count -->
+    <p id="count">Search from {{ .Count }} business</p>
+    <!-- ./count -->
+
+    <!-- form -->
+    <form x-target="count results" method="get" action="/search">
+      <label for="query">Search</label>
+      <input
+        id="query"
+        name="query"
+        type="search"
+        placeholder="Search..."
+        autocomplete="off"
+        @input.debounce="$el.form.requestSubmit()"
+      />
+    </form>
+    <!-- ./form -->
+
+    <!-- results -->
+    <ul id="results"></ul>
+    <!-- ./results -->
   </body>
 </html>
 
-{{ define "search-result" }}
-<!-- nowrap -->
-{{ range . }}
-<li>{{ .ABN }} - {{ .Name }}</li>
+<!-- search-results -->
+{{ define "search-results" }}
+<!-- count -->
+<p id="count">
+  Found ({{ .Count }}) businesses matching <em>'{{ .QueryStr }}'</em>
+</p>
+<!-- ./count -->
+
+<!-- results -->
+<ul id="results">
+  {{ range .Results }}
+  <li>{{ .ABN }} - {{ .Name }}</li>
+  {{ end }}
+</ul>
+<!-- ./results -->
 {{ end }}
-<!-- nowrap -->
+<!-- ./search-results -->
+
+<!-- styles -->
+{{ define "styles" }}
+<style>
+  body {
+    max-width: 768px;
+    margin: 0 auto;
+  }
+</style>
 {{ end }}
+<!-- ./styles -->
