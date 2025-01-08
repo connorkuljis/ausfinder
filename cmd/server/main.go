@@ -17,7 +17,6 @@ import (
 
 const (
 	dbstr        = "file:data/db.sqlite3"
-	randomABN    = "88573118334"
 	dbContextKey = "_db"
 )
 
