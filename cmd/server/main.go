@@ -60,7 +60,7 @@ func main() {
 	}
 	e.Use(dbMiddleware(db))
 	e.Use(middleware.Logger())
-	// e.Static("/", "public")
+	e.Static("/", "public")
 
 	// Using Get
 	var count int
