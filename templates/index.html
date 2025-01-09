@@ -5,6 +5,7 @@
     <title>Search for Businesses</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/index.css" />
     <script
       defer
       src="https://cdn.jsdelivr.net/npm/@imacrayon/alpine-ajax@0.11.0/dist/cdn.min.js"
@@ -13,19 +14,24 @@
       defer
       src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"
     ></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    />
   </head>
   <!-- ./head -->
 
-  <body>
-    {{ template "styles" . }}
-    <h1>Search Australin Businesses</h1>
+  <body class="container">
+    <header>
+      <h1><a href="/">Search Australian Businesses</a></h1>
+    </header>
+
     <!-- count -->
     <p id="count">Search from {{ .Count }} business</p>
     <!-- ./count -->
 
     <!-- form -->
     <form x-target="count results" method="get" action="/search">
-      <label for="query">Search</label>
       <input
         id="query"
         name="query"
