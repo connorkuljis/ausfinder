@@ -1,31 +1,9 @@
 <!doctype html>
 <html lang="en">
-  <!-- head -->
-  <head>
-    <title>Search for Businesses</title>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/index.css" />
-    <script
-      defer
-      src="https://cdn.jsdelivr.net/npm/@imacrayon/alpine-ajax@0.11.0/dist/cdn.min.js"
-    ></script>
-    <script
-      defer
-      src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"
-    ></script>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
-    />
-  </head>
-  <!-- ./head -->
+  {{ template "head" . }}
 
   <body class="container">
-    <header>
-      <h1><a href="/">Search Australian Businesses</a></h1>
-    </header>
-
+    {{ template "header" . }}
     <!-- count -->
     <p id="count">Search from {{ .Count }} business</p>
 
@@ -55,15 +33,14 @@
         </fieldset>
       </form>
     </search>
-    <!-- ./form -->
 
     <!-- results -->
-    <ul id="results"></ul>
+    <table id="results"></table>
   </body>
 </html>
 
-<!-- search-results -->
 {{ define "search-results" }}
+<!-- search-results -->
 <!-- count -->
 <p id="count">
   Found ({{ .Count }}) businesses matching <em>'{{ .QueryStr }}'</em>
@@ -71,22 +48,22 @@
 <!-- ./count -->
 
 <!-- results -->
-<ul id="results">
-  {{ range .Results }}
-  <li>{{ .ABN }} - {{ .Name }}</li>
-  {{ end }}
-</ul>
+<table id="results">
+  <thead>
+    <tr>
+      <th>ABN</th>
+      <th>Name</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{ range .Results }}
+    <tr>
+      <td><a href="/company/{{ .ABN }}">{{ .ABN }}</a></td>
+      <td>{{ .Name }}</td>
+    </tr>
+    {{ end }}
+  </tbody>
+</table>
 <!-- ./results -->
-{{ end }}
 <!-- ./search-results -->
-
-<!-- styles -->
-{{ define "styles" }}
-<style>
-  body {
-    max-width: 768px;
-    margin: 0 auto;
-  }
-</style>
 {{ end }}
-<!-- ./styles -->

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  {{ template "head" }}
+  <body class="container">
+    {{ template "header" . }}
+    <article>{{ template "business" .Business }}</article>
+  </body>
+</html>
+
+{{ define "business" }}
+<table>
+  <tr>
+    <th>ABN</th>
+    <td>{{ .ABN }}</td>
+  </tr>
+  <tr>
+    <th>Register Name</th>
+    <td>{{ .RegisterName }}</td>
+  </tr>
+  <tr>
+    <th>Business Name</th>
+    <td>{{ .Name }}</td>
+  </tr>
+  <tr>
+    <th>Status</th>
+    <td>{{ .Status }}</td>
+  </tr>
+  <tr>
+    <th>Register Date</th>
+    <td>{{ .RegisterDate }}</td>
+  </tr>
+  <tr>
+    <th>Cancel Date</th>
+    <td>{{ .CancelDate }}</td>
+  </tr>
+  <tr>
+    <th>Renew Date</th>
+    <td>{{ .RenewDate }}</td>
+  </tr>
+  <tr>
+    <th>State Number</th>
+    <td>{{ .StateNumber }}</td>
+  </tr>
+  <tr>
+    <th>State of Registration</th>
+    <td>{{ .StateOfReg }}</td>
+  </tr>
+</table>
+{{ end }}
