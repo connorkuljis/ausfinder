@@ -42,16 +42,16 @@ select count(*) from business_names;
 Create virtual table with fts5.
 
 ```sql
-CREATE VIRTUAL TABLE businesses USING fts5(business_name, abn);
+CREATE VIRTUAL TABLE business_search USING fts5(name, abn, state);
 ```
 
 Populate the virtual table using insert select.
 
 ```sql
 INSERT INTO
-     businesses
+     business_search
      SELECT
-          trim(BN_NAME), trim(BN_ABN)
+          trim(BN_NAME), trim(BN_ABN), trim(BN_STATE_OF_REG)
      FROM
           business_names;
 ```
