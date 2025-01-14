@@ -13,6 +13,7 @@ type Business struct {
 }
 
 type BusinessSearch struct {
-	Name string `db:"business_name"`
-	ABN  string `db:"abn"`
+	Name  string `db:"name"`
+	ABN   string `db:"abn"`
+	State string `db:"state"`
 }
