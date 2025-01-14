@@ -28,24 +28,37 @@
 
     <!-- count -->
     <p id="count">Search from {{ .Count }} business</p>
-    <!-- ./count -->
 
     <!-- form -->
-    <form x-target="count results" method="get" action="/search">
-      <input
-        id="query"
-        name="query"
-        type="search"
-        placeholder="Search..."
-        autocomplete="off"
-        @input.debounce="$el.form.requestSubmit()"
-      />
-    </form>
+    <search>
+      <form x-target="count results" method="get" action="/search">
+        <fieldset role="group">
+          <input
+            id="query"
+            name="query"
+            type="search"
+            placeholder="Search..."
+            autocomplete="off"
+            @input.debounce="$el.form.requestSubmit()"
+          />
+          <select id="state" name="state" @change="$el.form.requestSubmit()">
+            <option value="" selected>All - Australia</option>
+            <option value="ACT">ACT</option>
+            <option value="NSW">NSW</option>
+            <option value="NT">NT</option>
+            <option value="QLD">QLD</option>
+            <option value="SA">SA</option>
+            <option value="TAS">TAS</option>
+            <option value="VIC">VIC</option>
+            <option value="WA">WA</option>
+          </select>
+        </fieldset>
+      </form>
+    </search>
     <!-- ./form -->
 
     <!-- results -->
     <ul id="results"></ul>
-    <!-- ./results -->
   </body>
 </html>
 
