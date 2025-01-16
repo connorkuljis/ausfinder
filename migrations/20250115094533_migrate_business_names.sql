@@ -5,9 +5,9 @@ CREATE TABLE IF NOT EXISTS business_names (
     abn           TEXT,
     name          TEXT,
     status        TEXT,
-    registered_at DATE,
-    cancel_at     DATE,
-    renew_at      DATE,
+    registered_at TEXT,
+    cancel_at     TEXT,
+    renew_at      TEXT,
     state_num     TEXT,
     state_of_reg  TEXT
 );
