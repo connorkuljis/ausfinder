@@ -6,3 +6,4 @@ data/
 !data/README.md
 !internal/
 
+db/db.sqlite3
