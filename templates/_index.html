@@ -57,10 +57,15 @@
   </thead>
   <tbody>
     {{ range .Results }}
+    <!-- nowrap -->
+    {{ if .ABN.Valid }}
     <tr>
-      <td><a href="/company/{{ .ABN }}">{{ .ABN }}</a></td>
-      <td>{{ .Name }}</td>
+      <td><a href="/company/{{ .ABN.String }}">{{ .ABN.String }}</a></td>
+      <td>{{ .Name.String }}</td>
+      <td>{{ .State.String }}</td>
     </tr>
+    {{ end }}
+    <!-- nowrap -->
     {{ end }}
   </tbody>
 </table>

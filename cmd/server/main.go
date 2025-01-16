@@ -57,10 +57,10 @@ func handleSearch(db *sqlx.DB) echo.HandlerFunc {
 
 		var results []model.BusinessSearch
 		if queryStr != "" {
-			err := db.Select(&results, `SELECT * FROM business_search WHERE name MATCH ? AND state = ? ORDER BY abn DESC`, queryStr, stateStr)
+			err := db.Select(&results, `SELECT * FROM business_search WHERE name MATCH ? AND state MATCH ? ORDER BY abn DESC`, queryStr, stateStr)
 			if err != nil {
 				// TODO: don't throw error, but return error message to user.
-				// 	return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+				return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 			}
 		}
 
@@ -76,7 +76,7 @@ func handleCompany(db *sqlx.DB) echo.HandlerFunc {
 		id := c.Param("id")
 
 		var business model.Business
-		err := db.Get(&business, `SELECT * FROM business_names WHERE BN_ABN = ?`, id)
+		err := db.Get(&business, `SELECT * FROM business_names WHERE abn = ?`, id)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
