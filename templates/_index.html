@@ -3,24 +3,26 @@
   {{ template "head" . }}
 
   <body class="container">
+    <!-- header -->
     {{ template "header" . }}
-    <!-- count -->
-    <p id="count">Search from {{ .Count }} business</p>
+
+    <!-- message -->
+    <div id="message">{{ template "message" . }}</div>
 
     <!-- form -->
     <search>
-      <form x-target="count results" method="get" action="/search">
+      <form x-target.replace="results message" method="get" action="/search">
         <fieldset role="group">
           <input
             id="query"
-            name="query"
+            name="q"
             type="search"
             placeholder="Search..."
             autocomplete="off"
             @input.debounce="$el.form.requestSubmit()"
           />
           <select id="state" name="state" @change="$el.form.requestSubmit()">
-            <option value="" selected>All - Australia</option>
+            <option value="">All - Australia</option>
             <option value="ACT">ACT</option>
             <option value="NSW">NSW</option>
             <option value="NT">NT</option>
@@ -35,20 +37,29 @@
     </search>
 
     <!-- results -->
-    <table id="results"></table>
+    <div id="results">{{ template "results" . }}</div>
   </body>
 </html>
 
-{{ define "search-results" }}
 <!-- search-results -->
-<!-- count -->
-<p id="count">
-  Found ({{ .Count }}) businesses matching <em>'{{ .QueryStr }}'</em>
-</p>
-<!-- ./count -->
+{{ define "search-results" }}
+<!-- message -->
+<div id="message">{{ template "message" . }}</div>
+<!-- results -->
+<div id="results">{{ template "results" . }}</div>
+<!-- nowrap -->
+{{ end }}
+
+<!-- message -->
+{{ define "message" }}
+<p>{{ .Message }}</p>
+{{ end }}
 
 <!-- results -->
-<table id="results">
+{{ define "results" }}
+<!-- business search results table -->
+{{ if gt (len .BusinessSearchResults) 0 }}
+<table>
   <thead>
     <tr>
       <th>ABN</th>
@@ -56,8 +67,8 @@
     </tr>
   </thead>
   <tbody>
-    {{ range .Results }}
-    <!-- nowrap -->
+    {{ range .BusinessSearchResults }}
+    <!-- range -->
     {{ if .ABN.Valid }}
     <tr>
       <td><a href="/company/{{ .ABN.String }}">{{ .ABN.String }}</a></td>
@@ -65,10 +76,10 @@
       <td>{{ .State.String }}</td>
     </tr>
     {{ end }}
-    <!-- nowrap -->
+    <!-- ./range -->
     {{ end }}
   </tbody>
 </table>
-<!-- ./results -->
-<!-- ./search-results -->
+{{ end }}
+<!-- nowrap -->
 {{ end }}

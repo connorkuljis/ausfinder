@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 
 	"github.com/connorkuljis/backtrace/internal/model"
 	"github.com/connorkuljis/backtrace/internal/renderer"
@@ -28,49 +30,58 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Static("/", "public")
 
-	e.GET("/", handleIndex(db))
 	e.GET("/search", handleSearch(db))
 	e.GET("/company/:id", handleCompany(db))
 
 	e.Start(":8080")
 }
 
-func handleIndex(db *sqlx.DB) echo.HandlerFunc {
-	var count int
-	err := db.Get(&count, "SELECT COUNT(*) FROM business_search")
+func handleSearch(db *sqlx.DB) echo.HandlerFunc {
+	var total int
+	err := db.Get(&total, "SELECT COUNT(*) FROM business_search")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	return func(c echo.Context) error {
-		return c.Render(http.StatusOK, "_index.html", map[string]interface{}{
-			"Count": count,
-		})
-	}
-}
+		var results []model.BusinessSearch
+		var msg = fmt.Sprintf("Search for %d businesses", total)
 
-func handleSearch(db *sqlx.DB) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		// TODO: input sanitisation
-		queryStr := c.QueryParam("query")
+		queryStr := c.QueryParam("q")
 		stateStr := c.QueryParam("state")
 
-		var results []model.BusinessSearch
 		if queryStr != "" {
-			err := db.Select(&results, `SELECT * FROM business_search WHERE name MATCH ? AND state MATCH ? ORDER BY abn DESC`, queryStr, stateStr)
+			query := `SELECT * FROM business_search WHERE name MATCH ?`
+			params := []interface{}{queryStr}
+
+			if stateStr != "" {
+				query += ` AND state = ?`
+				params = append(params, stateStr)
+			}
+
+			query += `ORDER BY abn DESC`
+
+			err := db.Select(&results, query, params...)
 			if err != nil {
-				// TODO: don't throw error, but return error message to user.
-				return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+				msg = fmt.Sprintf("An issue occurred searching for '%s'", queryStr)
+			} else {
+				msg = fmt.Sprintf("Found (%d) results for '%s'", len(results), queryStr)
 			}
 		}
 
-		return c.Render(http.StatusOK, "search-results", map[string]interface{}{
-			"QueryStr": queryStr,
-			"Count":    len(results),
-			"Results":  results,
-		})
+		data := map[string]any{
+			"BusinessSearchResults": results,
+			"Message":               msg,
+		}
+
+		if c.Request().Header.Get("X-Alpine-Request") == "true" {
+			return c.Render(http.StatusOK, "search-results", data)
+		}
+
+		return c.Render(http.StatusOK, "_index.html", data)
 	}
 }
+
 func handleCompany(db *sqlx.DB) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		id := c.Param("id")
@@ -81,8 +92,15 @@ func handleCompany(db *sqlx.DB) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 
+		// Escape the business name for use in the URL
+		escapedName := url.QueryEscape(business.Name.String)
+
+		// Create the LinkedIn URL with the escaped parameter
+		linkedinURL := fmt.Sprintf("https://www.linkedin.com/search/results/companies/?keywords=%s", escapedName)
+
 		return c.Render(http.StatusOK, "_company-details.html", map[string]interface{}{
-			"Business": business,
+			"Business":    business,
+			"LinkedinURL": linkedinURL,
 		})
 	}
 }

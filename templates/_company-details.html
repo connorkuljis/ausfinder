@@ -3,7 +3,7 @@
   {{ template "head" }}
   <body class="container">
     {{ template "header" . }}
-    <article>{{ template "business" .Business }}</article>
+    <article>{{ template "business" . }}</article>
   </body>
 </html>
 
@@ -11,39 +11,23 @@
 <table>
   <tr>
     <th>ABN</th>
-    <td>{{ .ABN }}</td>
-  </tr>
-  <tr>
-    <th>Register Name</th>
-    <td>{{ .RegisterName }}</td>
+    <td>{{ .Business.ABN.String }}</td>
   </tr>
   <tr>
     <th>Business Name</th>
-    <td>{{ .Name }}</td>
+    <td>{{ .Business.Name.String }}</td>
   </tr>
   <tr>
     <th>Status</th>
-    <td>{{ .Status }}</td>
+    <td>{{ .Business.Status.String }}</td>
   </tr>
   <tr>
-    <th>Register Date</th>
-    <td>{{ .RegisterDate }}</td>
+    <th>State</th>
+    <td>{{ .Business.StateOfReg.String }}</td>
   </tr>
   <tr>
-    <th>Cancel Date</th>
-    <td>{{ .CancelDate }}</td>
-  </tr>
-  <tr>
-    <th>Renew Date</th>
-    <td>{{ .RenewDate }}</td>
-  </tr>
-  <tr>
-    <th>State Number</th>
-    <td>{{ .StateNumber }}</td>
-  </tr>
-  <tr>
-    <th>State of Registration</th>
-    <td>{{ .StateOfReg }}</td>
+    <th></th>
+    <td><a href="{{ .LinkedinURL }}">Linkedin</a></td>
   </tr>
 </table>
 {{ end }}
