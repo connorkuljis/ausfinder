@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	dbstr = "file:data/db.sqlite3"
+	dbstr = "file:db/db.sqlite3"
 )
 
 func main() {
