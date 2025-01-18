@@ -6,38 +6,58 @@
     <!-- header -->
     {{ template "header" . }}
 
-    <!-- message -->
-    <div id="message">{{ template "message" . }}</div>
+    <main>
+      <!-- message -->
+      <div id="message">{{ template "message" . }}</div>
 
-    <!-- form -->
-    <search>
-      <form x-target.replace="results message" method="get" action="/search">
-        <fieldset role="group">
-          <input
-            id="query"
-            name="q"
-            type="search"
-            placeholder="Search..."
-            autocomplete="off"
-            @input.debounce="$el.form.requestSubmit()"
-          />
-          <select id="state" name="state" @change="$el.form.requestSubmit()">
-            <option value="">All - Australia</option>
-            <option value="ACT">ACT</option>
-            <option value="NSW">NSW</option>
-            <option value="NT">NT</option>
-            <option value="QLD">QLD</option>
-            <option value="SA">SA</option>
-            <option value="TAS">TAS</option>
-            <option value="VIC">VIC</option>
-            <option value="WA">WA</option>
-          </select>
-        </fieldset>
-      </form>
-    </search>
+      <!-- form -->
+      <search>
+        <form x-target.replace="results message" method="get" action="/search">
+          <fieldset role="group">
+            <input
+              id="query"
+              name="q"
+              type="search"
+              placeholder="Search business name..."
+              autocomplete="off"
+              @input.debounce="$el.form.requestSubmit()"
+            />
+            <select id="state" name="state" @change="$el.form.requestSubmit()">
+              <option value="">All - Australia</option>
+              <option value="ACT">ACT</option>
+              <option value="NSW">NSW</option>
+              <option value="NT">NT</option>
+              <option value="QLD">QLD</option>
+              <option value="SA">SA</option>
+              <option value="TAS">TAS</option>
+              <option value="VIC">VIC</option>
+              <option value="WA">WA</option>
+            </select>
+          </fieldset>
+        </form>
+      </search>
 
-    <!-- results -->
-    <div id="results">{{ template "results" . }}</div>
+      <!-- results -->
+      <div id="results">{{ template "results" . }}</div>
+    </main>
+
+    <!-- footer -->
+    {{ template "footer" .}}
+
+    <style>
+      body {
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+
+        & main {
+          flex: 1;
+        }
+      }
+      footer {
+        text-align: center;
+      }
+    </style>
   </body>
 </html>
 
@@ -64,18 +84,17 @@
     <tr>
       <th>ABN</th>
       <th>Name</th>
+      <th>State</th>
     </tr>
   </thead>
-  <tbody>
+  <tbody content-visibility="auto">
     {{ range .BusinessSearchResults }}
     <!-- range -->
-    {{ if .ABN.Valid }}
     <tr>
-      <td><a href="/company/{{ .ABN.String }}">{{ .ABN.String }}</a></td>
-      <td>{{ .Name.String }}</td>
+      <td><a href="/search/business/{{ .ABN }}">{{ .ABN }}</a></td>
+      <td>{{ .Name }}</td>
       <td>{{ .State.String }}</td>
     </tr>
-    {{ end }}
     <!-- ./range -->
     {{ end }}
   </tbody>
