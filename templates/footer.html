@@ -1,9 +1,22 @@
 {{ define "footer" }}
 <footer>
-  <div>Open data from - 
-    <a
-      href="https://www.data.gov.au/dataset/ds-dga-bc515135-4bb6-4d50-957a-3713709a76d3/"
-      >ASIC Business Names Dataset</a
-    >
-  {{ end }}
+  <div class="footer-links">
+    <div>
+      Open data from
+      <a
+        href="https://www.data.gov.au/dataset/ds-dga-bc515135-4bb6-4d50-957a-3713709a76d3/"
+        >ASIC Business Names Dataset</a
+      >
+    </div>
+    <div>2025 - <a href="https://ausfinder.fyi">ausfinder.fyi</a></div>
+  </div>
+  <style>
+    .footer-links {
+      display: flex;
+      width: 100%;
+      gap: 1rem;
+      justify-content: space-between;
+    }
+  </style>
 </footer>
+{{ end }}
