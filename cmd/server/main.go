@@ -50,7 +50,7 @@ func handleSearch(db *sqlx.DB) echo.HandlerFunc {
 
 	return func(c echo.Context) error {
 		var results []model.BusinessSearch
-		var msg = printer.Sprintf("Search %d registered businesses", total)
+		var msg = printer.Sprintf("Search %d active business names", total)
 
 		queryStr := c.QueryParam("q")
 		stateStr := c.QueryParam("state")

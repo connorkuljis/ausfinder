@@ -1,0 +1,29 @@
+.pulsing-dot {
+  width: 50px;
+  /* Dot size */
+  height: 50px;
+  /* Dot size */
+  background-color: green;
+  /* Dot color */
+  border-radius: 50%;
+  /* Make it a circle */
+  animation: pulse 1.5s infinite;
+  /* Animation */
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    /* Initial size */
+  }
+
+  50% {
+    transform: scale(1.5);
+    /* Scale up */
+  }
+
+  100% {
+    transform: scale(1);
+    /* Scale back to original size */
+  }
+}
