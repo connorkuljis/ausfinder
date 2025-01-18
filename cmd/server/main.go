@@ -11,6 +11,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	_ "github.com/mattn/go-sqlite3"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -30,13 +32,16 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Static("/", "public")
 
+	e.GET("/", func(c echo.Context) error { return c.Redirect(http.StatusSeeOther, "/search") })
 	e.GET("/search", handleSearch(db))
-	e.GET("/company/:id", handleCompany(db))
+	e.GET("/search/business/:id", handleBusiness(db))
 
 	e.Start(":8080")
 }
 
 func handleSearch(db *sqlx.DB) echo.HandlerFunc {
+	printer := message.NewPrinter(language.English)
+
 	var total int
 	err := db.Get(&total, "SELECT COUNT(*) FROM business_search")
 	if err != nil {
@@ -45,7 +50,7 @@ func handleSearch(db *sqlx.DB) echo.HandlerFunc {
 
 	return func(c echo.Context) error {
 		var results []model.BusinessSearch
-		var msg = fmt.Sprintf("Search for %d businesses", total)
+		var msg = printer.Sprintf("Search %d registered businesses", total)
 
 		queryStr := c.QueryParam("q")
 		stateStr := c.QueryParam("state")
@@ -65,7 +70,7 @@ func handleSearch(db *sqlx.DB) echo.HandlerFunc {
 			if err != nil {
 				msg = fmt.Sprintf("An issue occurred searching for '%s'", queryStr)
 			} else {
-				msg = fmt.Sprintf("Found (%d) results for '%s'", len(results), queryStr)
+				msg = printer.Sprintf("Found (%d) results for '%s'", len(results), queryStr)
 			}
 		}
 
@@ -82,7 +87,7 @@ func handleSearch(db *sqlx.DB) echo.HandlerFunc {
 	}
 }
 
-func handleCompany(db *sqlx.DB) echo.HandlerFunc {
+func handleBusiness(db *sqlx.DB) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		id := c.Param("id")
 
@@ -93,12 +98,12 @@ func handleCompany(db *sqlx.DB) echo.HandlerFunc {
 		}
 
 		// Escape the business name for use in the URL
-		escapedName := url.QueryEscape(business.Name.String)
+		escapedName := url.QueryEscape(business.Name)
 
 		// Create the LinkedIn URL with the escaped parameter
 		linkedinURL := fmt.Sprintf("https://www.linkedin.com/search/results/companies/?keywords=%s", escapedName)
 
-		return c.Render(http.StatusOK, "_company-details.html", map[string]interface{}{
+		return c.Render(http.StatusOK, "_business.html", map[string]interface{}{
 			"Business":    business,
 			"LinkedinURL": linkedinURL,
 		})
