@@ -7,7 +7,7 @@ INSERT INTO
     SELECT 
         abn,
         name,
-        state_of_reg
+        state_of_registration
     FROM
         business_names;
 -- +goose StatementEnd
