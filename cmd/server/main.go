@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	dbstr = "file:db/db.sqlite3"
+	dbstr = "file:db/db.sqlite3?journal_mode=WAL"
 )
 
 func main() {
