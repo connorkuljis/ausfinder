@@ -2,6 +2,10 @@
 
 A Go-based web application for searching and retrieving Australian business information.
 
+## Dataset
+
+[https://data.gov.au/data/dataset/bc515135-4bb6-4d50-957a-3713709a76d3/resource/55ad4b1c-5eeb-44ea-8b29-d410da431be3/download/business_names_202503.csv](https://data.gov.au/data/dataset/bc515134-4bb6-4d50-957a-3713709a76d3/resource/55ad4b1c-5eeb-44ea-8b29-d410da431be3/download/business_names_202503.csv)
+
 ## Overview
 
 Backtrace provides a simple web interface to search for Australian businesses by name or ABN. It utilizes the Australian Business Register (ABR) API and maintains a local SQLite database for efficient queries.

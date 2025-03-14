@@ -1,5 +1,5 @@
 build:
-    go build -v --tags "fts5" ./cmd/server/main.go
+    go build --tags "fts5" ./cmd/server
 
 clean:
     rm -f ./main
