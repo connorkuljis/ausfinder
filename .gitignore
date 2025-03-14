@@ -7,4 +7,5 @@ data/
 !internal/
 
 db/db.sqlite3
-server
+/server
+database/business_names_202503.sqlite3
