@@ -28,6 +28,8 @@ FROM
 WHERE
     abn != '' AND
     name != '';
+
+DROP TABLE business_names_csv;
 -- +goose StatementEnd
 
 -- +goose Down
