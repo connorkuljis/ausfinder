@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	dbstr = "file:database/business_names_202503.sqlite3?journal_mode=WAL"
+	dbstr = "file:database/business_names.sqlite3?journal_mode=WAL"
 )
 
 type App = handler.App
