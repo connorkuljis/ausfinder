@@ -4,8 +4,8 @@ build:
 clean:
 	rm -f ./main
 
-rsync:
-	rsync -av --progress --exclude 'data/' . prod@${remote-ip}:~/app
+deploy:
+	rsync -av --progress --exclude 'data/' . prod@$(REMOTE_IP):~/app
 
 load-business-names:
 	./scripts/import_business_names_csv.sh
