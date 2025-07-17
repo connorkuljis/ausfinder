@@ -50,7 +50,7 @@ func HandleSearch(app App) echo.HandlerFunc {
 		if c.QueryParam("limit") != "" {
 			limit, err := strconv.ParseInt(c.QueryParam("limit"), 10, 64)
 			if err != nil {
-				return err
+				return echo.NewHTTPError(http.StatusBadRequest, "Invalid 'limit' parameter: must be an integer")
 			}
 			req.Limit = limit
 		}
@@ -58,7 +58,7 @@ func HandleSearch(app App) echo.HandlerFunc {
 		if c.QueryParam("offset") != "" {
 			offset, err := strconv.ParseInt(c.QueryParam("offset"), 10, 64)
 			if err != nil {
-				return err
+				return echo.NewHTTPError(http.StatusBadRequest, "Invalid 'offset' parameter: must be an integer")
 			}
 			req.Offset = offset
 		}
