@@ -1,11 +1,3 @@
-main
-data/
-
-!cmd/
-!Justfile
-!data/README.md
-!internal/
-
-db/db.sqlite3
-/server
-database/business_names_202503.sqlite3
+data
+database
+server
