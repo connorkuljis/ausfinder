@@ -12,7 +12,7 @@
 
 		<!-- form -->
 		<search>
-			<form x-target.replace="message results pagination" method="get" action="/search">
+			<form x-target.replace="message results-table pagination" method="get" action="/search">
 				<fieldset role="group">
 					<input id="query" name="q" type="search" placeholder="Search name..." autocomplete="off"
 						@input.debounce="$el.form.requestSubmit()" />
@@ -32,17 +32,7 @@
 		</search>
 
 
-		<!-- business search results table -->
-		<table>
-			<thead>
-				<tr>
-					<th>ABN</th>
-					<th>Name</th>
-					<th>State</th>
-				</tr>
-			</thead>
-			{{ template "results" . }}
-		</table>
+		{{ template "results-table" . }}
 
 		{{ template "pagination" . }}
 	</main>
@@ -69,8 +59,22 @@
 <div id="message">{{ .Message }}</div>
 {{ end }}
 
-{{ define "results" }}
-<tbody id="results" x-merge="append">
+{{ define "results-table" }}
+<table id="results-table" x-merge="replace">
+	<thead>
+		<tr>
+			<th>ABN</th>
+			<th>Name</th>
+			<th>State</th>
+		</tr>
+	</thead>
+	{{ template "results-table-body" . }}
+</table>
+{{ end }}
+
+
+{{ define "results-table-body" }}
+<tbody id="results-table-body" x-merge="append">
 	{{ range .Results }}
 	<tr>
 		<td><a href="/search/business/{{ .ABN }}">{{ .ABN }}</a></td>
@@ -81,11 +85,11 @@
 </tbody>
 {{ end }}
 
+
 {{ define "pagination" }}
 <div id="pagination">
 	{{ if gt (len .Results) 0 }}
-	<div x-init x-intersect="$ajax('{{ .Next }}', { target: 'message results pagination' })"></div>
+	<div x-init x-intersect="$ajax('{{ .Paginator }}', { target: 'message results-table-body pagination' })"></div>
 	{{ end }}
 </div>
-
 {{ end }}

@@ -56,16 +56,19 @@ func main() {
 
 func handleSearch(app App) echo.HandlerFunc {
 	type req struct {
-		Query  string
-		State  string
+		Query string
+		State string
+
 		Limit  int64
 		Offset int64
 	}
 
 	type resp struct {
-		Message string
+		ShownResults int64
+		TotalResults int64
+		Message      string
+		Paginator    string
 
-		Next    string
 		Results []model.BusinessSearch
 	}
 
@@ -100,6 +103,20 @@ func handleSearch(app App) echo.HandlerFunc {
 		}
 
 		if req.Query != "" {
+			query := `SELECT COUNT(*) FROM business_search WHERE name MATCH ?`
+			params := []interface{}{req.Query}
+
+			if req.State != "" {
+				query += ` AND state = ?`
+				params = append(params, req.State)
+			}
+
+			var count int64
+			app.DB.Get(&count, query, params...)
+			resp.TotalResults = count
+		}
+
+		if req.Query != "" {
 			query := `SELECT * FROM business_search WHERE name MATCH ?`
 			params := []interface{}{req.Query}
 
@@ -116,13 +133,11 @@ func handleSearch(app App) echo.HandlerFunc {
 			query += ` OFFSET ?`
 			params = append(params, req.Offset)
 
-			err := app.DB.Select(&resp.Results, query, params...)
-			if err != nil {
-				return err
-			}
+			app.DB.Select(&resp.Results, query, params...)
+			resp.ShownResults = int64(len(resp.Results)) + req.Offset
+			resp.Message = printer.Sprintf("Showing %d of %d results for '%s'", resp.ShownResults, resp.TotalResults, req.Query)
+			resp.Paginator = fmt.Sprintf("%s?q=%s&state=%s&limit=%d&offset=%d", c.Path(), req.Query, req.State, req.Limit, req.Offset+req.Limit)
 
-			resp.Message = printer.Sprintf("Showing (%d) results for '%s'", len(resp.Results), req.Query)
-			resp.Next = fmt.Sprintf("%s?q=%s&state=%s&limit=%d&offset=%d", c.Path(), req.Query, req.State, req.Limit, req.Offset+req.Limit)
 		}
 
 		if c.Request().Header.Get("X-Alpine-Request") == "true" {
