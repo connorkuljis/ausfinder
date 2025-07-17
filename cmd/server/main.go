@@ -64,7 +64,6 @@ func handleSearch(app App) echo.HandlerFunc {
 	}
 
 	type resp struct {
-		ShownResults int64
 		TotalResults int64
 		Message      string
 		Paginator    string
@@ -78,7 +77,7 @@ func handleSearch(app App) echo.HandlerFunc {
 		req := req{
 			Query:  c.QueryParam("q"),
 			State:  c.QueryParam("state"),
-			Limit:  30,
+			Limit:  30, // default to show 30 entries
 			Offset: 0,
 		}
 
@@ -134,10 +133,8 @@ func handleSearch(app App) echo.HandlerFunc {
 			params = append(params, req.Offset)
 
 			app.DB.Select(&resp.Results, query, params...)
-			resp.ShownResults = int64(len(resp.Results)) + req.Offset
-			resp.Message = printer.Sprintf("Showing %d of %d results for '%s'", resp.ShownResults, resp.TotalResults, req.Query)
+			resp.Message = printer.Sprintf("Found %d results for '%s'", resp.TotalResults, req.Query)
 			resp.Paginator = fmt.Sprintf("%s?q=%s&state=%s&limit=%d&offset=%d", c.Path(), req.Query, req.State, req.Limit, req.Offset+req.Limit)
-
 		}
 
 		if c.Request().Header.Get("X-Alpine-Request") == "true" {
