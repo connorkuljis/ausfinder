@@ -32,15 +32,19 @@ type SearchResp struct {
 	Results      []model.BusinessSearch
 }
 
+const (
+	defaultSearchResponseLimit int64 = 30
+)
+
 func HandleSearch(app App) echo.HandlerFunc {
 	return func(c echo.Context) error {
+		// print numbers in a human readable way, eg: 3000 -> 3,000
 		printer := message.NewPrinter(language.English)
 
 		req := SearchReq{
-			Query:  c.QueryParam("q"),
-			State:  c.QueryParam("state"),
-			Limit:  30, // default to show 30 entries
-			Offset: 0,
+			Query: c.QueryParam("q"),
+			State: c.QueryParam("state"),
+			Limit: defaultSearchResponseLimit,
 		}
 
 		if c.QueryParam("limit") != "" {
