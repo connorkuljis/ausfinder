@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strconv"
 
 	"github.com/connorkuljis/backtrace/internal/model"
 	"github.com/connorkuljis/backtrace/internal/renderer"
@@ -21,8 +22,22 @@ const (
 	dbstr = "file:database/business_names_202503.sqlite3?journal_mode=WAL"
 )
 
+type App struct {
+	TotalBusinesses int
+	DB              *sqlx.DB
+}
+
 func main() {
 	db, err := sqlx.Open("sqlite3", dbstr)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	app := App{
+		DB: db,
+	}
+
+	err = app.DB.Get(&app.TotalBusinesses, "SELECT COUNT(*) FROM business_search")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -33,57 +48,88 @@ func main() {
 	e.Static("/", "public")
 
 	e.GET("/", func(c echo.Context) error { return c.Redirect(http.StatusSeeOther, "/search") })
-	e.GET("/search", handleSearch(db))
+	e.GET("/search", handleSearch(app))
 	e.GET("/search/business/:id", handleBusiness(db))
 
 	e.Start(":8080")
 }
 
-func handleSearch(db *sqlx.DB) echo.HandlerFunc {
-	printer := message.NewPrinter(language.English)
+func handleSearch(app App) echo.HandlerFunc {
+	type req struct {
+		Query  string
+		State  string
+		Limit  int64
+		Offset int64
+	}
 
-	var total int
-	err := db.Get(&total, "SELECT COUNT(*) FROM business_search")
-	if err != nil {
-		log.Fatal(err)
+	type resp struct {
+		Message string
+
+		Next    string
+		Results []model.BusinessSearch
 	}
 
 	return func(c echo.Context) error {
-		var results []model.BusinessSearch
-		var msg = printer.Sprintf("Search %d active business names", total)
+		printer := message.NewPrinter(language.English)
 
-		queryStr := c.QueryParam("q")
-		stateStr := c.QueryParam("state")
+		req := req{
+			Query:  c.QueryParam("q"),
+			State:  c.QueryParam("state"),
+			Limit:  30,
+			Offset: 0,
+		}
 
-		if queryStr != "" {
+		if c.QueryParam("limit") != "" {
+			limit, err := strconv.ParseInt(c.QueryParam("limit"), 10, 64)
+			if err != nil {
+				return err
+			}
+			req.Limit = limit
+		}
+
+		if c.QueryParam("offset") != "" {
+			offset, err := strconv.ParseInt(c.QueryParam("offset"), 10, 64)
+			if err != nil {
+				return err
+			}
+			req.Offset = offset
+		}
+
+		resp := resp{
+			Message: printer.Sprintf("Search %d active business names", app.TotalBusinesses),
+		}
+
+		if req.Query != "" {
 			query := `SELECT * FROM business_search WHERE name MATCH ?`
-			params := []interface{}{queryStr}
+			params := []interface{}{req.Query}
 
-			if stateStr != "" {
+			if req.State != "" {
 				query += ` AND state = ?`
-				params = append(params, stateStr)
+				params = append(params, req.State)
 			}
 
 			query += `ORDER BY abn DESC`
 
-			err := db.Select(&results, query, params...)
-			if err != nil {
-				msg = fmt.Sprintf("An issue occurred searching for '%s'", queryStr)
-			} else {
-				msg = printer.Sprintf("Found (%d) results for '%s'", len(results), queryStr)
-			}
-		}
+			query += ` LIMIT ?`
+			params = append(params, req.Limit)
 
-		data := map[string]any{
-			"BusinessSearchResults": results,
-			"Message":               msg,
+			query += ` OFFSET ?`
+			params = append(params, req.Offset)
+
+			err := app.DB.Select(&resp.Results, query, params...)
+			if err != nil {
+				return err
+			}
+
+			resp.Message = printer.Sprintf("Showing (%d) results for '%s'", len(resp.Results), req.Query)
+			resp.Next = fmt.Sprintf("%s?q=%s&state=%s&limit=%d&offset=%d", c.Path(), req.Query, req.State, req.Limit, req.Offset+req.Limit)
 		}
 
 		if c.Request().Header.Get("X-Alpine-Request") == "true" {
-			return c.Render(http.StatusOK, "search-results", data)
+			return c.Render(http.StatusOK, "_index-partial.html", resp)
 		}
 
-		return c.Render(http.StatusOK, "_index.html", data)
+		return c.Render(http.StatusOK, "_index.html", resp)
 	}
 }
 
