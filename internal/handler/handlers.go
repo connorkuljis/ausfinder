@@ -67,6 +67,7 @@ func HandleSearch(app App) echo.HandlerFunc {
 			Message: printer.Sprintf("Search %d active business names", app.TotalBusinesses),
 		}
 
+		// find total rows matching search request
 		if req.Query != "" {
 			query := `SELECT COUNT(*) FROM business_search WHERE name MATCH ?`
 			params := []interface{}{req.Query}
@@ -81,6 +82,7 @@ func HandleSearch(app App) echo.HandlerFunc {
 			resp.TotalResults = count
 		}
 
+		// find actual rows matching search request (for pagination)
 		if req.Query != "" {
 			query := `SELECT * FROM business_search WHERE name MATCH ?`
 			params := []interface{}{req.Query}
@@ -98,6 +100,8 @@ func HandleSearch(app App) echo.HandlerFunc {
 
 			app.DB.Select(&resp.Results, query, params...)
 			resp.Message = printer.Sprintf("Found %d results for '%s'", resp.TotalResults, req.Query)
+
+			// new offset = offset + limit
 			resp.Paginator = fmt.Sprintf("%s?q=%s&state=%s&limit=%d&offset=%d", c.Path(), req.Query, req.State, req.Limit, req.Offset+req.Limit)
 		}
 
